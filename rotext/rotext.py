@@ -2,9 +2,11 @@ import keyboard
 import pyperclip
 from time import sleep
 import pyautogui
+import string
 
 
 def converter(text):
+    # Dictionaries mapping each character
     eng_heb = {'a': 'ש', 'b': 'נ', 'c': 'ב', 'd': 'ג', 'e': 'ק', 'f': 'כ', 'g': 'ע',
                'h': 'י', 'i': 'ן', 'j': 'ח', 'k': 'ל', 'l': 'ך', 'm': 'צ', 'n': 'מ',
                'o': 'ם', 'p': 'פ', 'q': '/', 'r': 'ר', 's': 'ד', 't': 'א', 'u': 'ו',
@@ -14,34 +16,46 @@ def converter(text):
                'י': 'h', 'ן': 'i', 'ח': 'j', 'ל': 'k', 'ך': 'l', 'צ': 'm', 'מ': 'n',
                'ם': 'o', 'פ': 'p', '/': 'q', 'ר': 'r', 'ד': 's', 'א': 't', 'ו': 'u',
                'ה': 'v', "'": "w", 'ס': 'x', 'ט': 'y', 'ז': 'z', 'ת': ","}
+
+    # Initializing list
     result = []
 
-    if text[0] in eng_heb:
+    # Initializing index of first character in text
+    first_char = 0
+
+    # This accounts for the situation in which the string starts with a punctuation mark.
+    # If the rec'd text is just a single punctuation mark, it will remain the same, unless
+    # it is a comma, which maps to ת.
+    if len(text) > 1:
+        while text[first_char] in string.punctuation:
+            first_char += 1
+
+    if text[first_char] in eng_heb:
         for character in text:
             try:
                 result.append(eng_heb[character])
-            except:
+            except LookupError:
                 result.append(character)
     else:
         for character in text:
             try:
                 result.append(heb_eng[character])
-            except:
+            except LookupError:
                 result.append(character)
     return ''.join(result)
 
 
 def string_handler():
-    sleep(0.1)
+    # sleep(0.1)
 
     pyautogui.hotkey('ctrl', 'a')
-    sleep(0.1)
+    # sleep(0.1)
 
     pyautogui.hotkey('ctrl', 'c')
     sleep(0.1)
 
     text = list(pyperclip.paste())
-    sleep(0.1)
+    # sleep(0.1)
 
     result = converter(text)
     sleep(0.1)
