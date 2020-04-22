@@ -3,20 +3,43 @@ import pyperclip
 from time import sleep
 import pyautogui
 import string
+from googletrans import Translator
+
+
+class Maps:
+    en_iw = {'a': 'ש', 'b': 'נ', 'c': 'ב', 'd': 'ג', 'e': 'ק', 'f': 'כ', 'g': 'ע',
+             'h': 'י', 'i': 'ן', 'j': 'ח', 'k': 'ל', 'l': 'ך', 'm': 'צ', 'n': 'מ',
+             'o': 'ם', 'p': 'פ', 'q': '/', 'r': 'ר', 's': 'ד', 't': 'א', 'u': 'ו',
+             'v': 'ה', 'w': "'", 'x': 'ס', 'y': 'ט', 'z': 'ז', '.': 'ץ', ",": 'ת'}
+
+    iw_en = {'ש': 'a', 'נ': 'b', 'ב': 'c', 'ג': 'd', 'ק': 'e', 'כ': 'f', 'ע': 'g',
+             'י': 'h', 'ן': 'i', 'ח': 'j', 'ל': 'k', 'ך': 'l', 'צ': 'm', 'מ': 'n',
+             'ם': 'o', 'פ': 'p', '/': 'q', 'ר': 'r', 'ד': 's', 'א': 't', 'ו': 'u',
+             'ה': 'v', "'": "w", 'ס': 'x', 'ט': 'y', 'ז': 'z', 'ת': ",", 'ץ': "."}
+
+
+# Translates selected text.
+# First copies and pastes text into a variable, then recognizes source language and
+# translates accordingly.
+def translate():
+    trans = Translator()
+
+    pyautogui.hotkey('ctrl', 'c')
+    sleep(0.1)
+    text = pyperclip.paste()
+
+    if text[0] in Maps.iw_en:
+        result = trans.translate(text)
+        pyperclip.copy(result.text)
+
+    elif text[0].lower() in Maps.en_iw:
+        result = trans.translate(text, dest='iw')
+        pyperclip.copy(result.text)
+
+    pyautogui.hotkey('ctrl', 'v')
 
 
 def converter(text):
-    # Dictionaries mapping each character
-    eng_heb = {'a': 'ש', 'b': 'נ', 'c': 'ב', 'd': 'ג', 'e': 'ק', 'f': 'כ', 'g': 'ע',
-               'h': 'י', 'i': 'ן', 'j': 'ח', 'k': 'ל', 'l': 'ך', 'm': 'צ', 'n': 'מ',
-               'o': 'ם', 'p': 'פ', 'q': '/', 'r': 'ר', 's': 'ד', 't': 'א', 'u': 'ו',
-               'v': 'ה', 'w': "'", 'x': 'ס', 'y': 'ט', 'z': 'ז', ",": 'ת'}
-
-    heb_eng = {'ש': 'a', 'נ': 'b', 'ב': 'c', 'ג': 'd', 'ק': 'e', 'כ': 'f', 'ע': 'g',
-               'י': 'h', 'ן': 'i', 'ח': 'j', 'ל': 'k', 'ך': 'l', 'צ': 'm', 'מ': 'n',
-               'ם': 'o', 'פ': 'p', '/': 'q', 'ר': 'r', 'ד': 's', 'א': 't', 'ו': 'u',
-               'ה': 'v', "'": "w", 'ס': 'x', 'ט': 'y', 'ז': 'z', 'ת': ","}
-
     # Initializing list
     result = []
 
@@ -30,32 +53,28 @@ def converter(text):
         while text[first_char] in string.punctuation:
             first_char += 1
 
-    if text[first_char] in eng_heb:
+    if text[first_char] in Maps.en_iw:
         for character in text:
             try:
-                result.append(eng_heb[character])
+                result.append(Maps.en_iw[character])
             except LookupError:
                 result.append(character)
     else:
         for character in text:
             try:
-                result.append(heb_eng[character])
+                result.append(Maps.iw_en[character])
             except LookupError:
                 result.append(character)
     return ''.join(result)
 
 
 def string_handler():
-    # sleep(0.1)
-
     pyautogui.hotkey('ctrl', 'a')
-    # sleep(0.1)
 
     pyautogui.hotkey('ctrl', 'c')
     sleep(0.1)
 
     text = list(pyperclip.paste())
-    # sleep(0.1)
 
     result = converter(text)
     sleep(0.1)
@@ -68,5 +87,9 @@ def string_handler():
     pyautogui.hotkey('alt', 'shift')
 
 
+# Hotkey for flipping text according to maps
 keyboard.add_hotkey('ctrl+\\', string_handler)
+
+# Hotkey for translating selected text
+keyboard.add_hotkey('ctrl+]', translate)
 keyboard.wait()
